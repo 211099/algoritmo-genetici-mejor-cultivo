@@ -1,0 +1,21 @@
+Nombre del Cultivo,Tipo de Suelo,Tipo de Cultivo,Clima,Riesgos,Nutrientes Necesarios,Cultivo Compatible,pH Ideal,Efectos generados,afecta,Temporada
+Maiz,"Limoso,Arcillosos,Arenosos,franco",Cereales,Templado,"Insectos, sequia","Nitrógeno, Fósforo, Potasio","Soja, Tomate, Zanahoria",5.5 - 7.0,1,"1,2","mayo,abril"
+Soja,Limoso,Leguminosas,Templado,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Maiz,6.0 - 6.5,2,2,junio
+Girasol,Arenoso,Oleaginosas,Caluroso,"Pujaros, sequia","Nitrógeno, Fósforo, Potasio",Trigo,6.0 - 7.5,3,3,"julio,marzo"
+Tomate,Arcilloso,Hortalizas,Calido,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio, Calcio",Albahaca,6.0 - 6.8,5,4,"noviembre,diciembre"
+Manzana,Limoso,Frutales,Templado,"Insectos, heladas","Nitrógeno, Fósforo, Potasio, Calcio",Cerezo,6.0 - 7.0,6,5,octubre
+Rosa,Arcilloso,Ornamentales,Templado,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio, Calcio",Tulipan,6.0 - 6.5,7,2,agosto
+Papa,Arenoso,"Raíces, Tubérculos",Fresco,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Cebolla,4.8 - 5.5,8,3,"enero,febrero"
+Cebolla,Limoso,Hortalizas,Seco,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Zanahoria,6.0 - 6.8,9,2,"diciembre,agosto"
+Trigo,Arcilloso,Cereales,Fresco,"Insectos, sequia","Nitrógeno, Fósforo, Potasio",Cebada,6.0 - 7.0,10,3,"enero,febrero,abril"
+Cebada,Limoso,Cereales,Fresco,"Enfermedades fungicas, Sequía","Nitrógeno, Fósforo, Potasio",Trigo,6.0 - 7.5,12,4,octubre
+Zanahoria,Arenoso,"Raices, Tubérculos",Templado,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio","Cebolla, Maiz",6.0 - 6.8,"1,2",2,"noviembre,diciembre"
+Albahaca,Arcilloso,Hierbas,Caluroso,"Insectos, sequía","Nitrógeno, Fósforo, Potasio",Tomate,6.0 - 7.5,14,3,septiembre
+Espinaca,Limoso,Hortalizas,Fresco,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Lechuga,6.0 - 7.5,15,12,octubre
+Lechuga,Arcilloso,Hortalizas,Fresco,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Espinaca,6.0 - 7.0,16,1,abril
+Ajo,Arenoso,"Raices, Tuberculos",Templado,"Insectos, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Zanahoria,6.0 - 7.0,17,15,abril
+Arroz,Arcilloso,Cereales,"Calido, humedo","Inundaciones, enfermedades fungicas","Nitrógeno, Fósforo, Potasio",Lentejas,6.0 - 7.0,1,12,enero
+Lentejas,Limoso,Leguminosas,Fresco,"Insectos, sequua","Nitrógeno (fijación de nitrógeno), Fósforo, Potasio",Arroz,6.0 - 6.5,1,14,junio
+Olivo,Calizo,Frutales,Mediterráneo,"Enfermedades fúngicas, sequia","Nitrógeno, Fósforo, Potasio, Calcio",Lavanda,6.0 - 7.5,2,11,"julio,marzo"
+,,,,,,,,,,
+0,1,2,3,4,5,6,7,8,9,10
