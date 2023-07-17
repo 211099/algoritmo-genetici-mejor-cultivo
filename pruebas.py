@@ -1,133 +1,59 @@
-import pandas as pd
-import random 
-from decimal import Decimal
+import tkinter as tk
+from tkinter import simpledialog
 
-data_diccionario = {}
-poblacion_puntuacion = {}
+class ConfigWindow(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title('Configuración')
+        self.geometry("800x600")  # Ajusta el tamaño de la ventana emergente a tu preferencia.
+        self.inputs = []
 
-def leer_dataset():
-    
-    # Cargar el archivo CSV
-    df = pd.read_csv('dataset.csv')
+        titulo_labels = ["quecultivo quieres sembrar?","algun tipo de cultivo en especifico","tipo de suelo","nutrientes del suelo","clima del area","riesgos conocidos","mes de la siembra"]
 
-    # Recortar el DataFrame para que comience desde la segunda fila (índice 1)
-    df = df.iloc[0:]
+        for i in range(6):
+            tk.Label(self, text=titulo_labels[i], font=('Arial', 20)).grid(row=i, column=0, sticky='w', padx=(20, 10), pady=10)
+            entry = tk.Entry(self, font=('Arial', 20))
+            entry.grid(row=i, column=1, padx=(10, 20), pady=10)
+            self.inputs.append(entry)
 
-    # Crear una lista que almacena cada fila como una lista de listas
-    data = []
-    for index, row in df.iterrows():
-        # Convierte cada fila en una lista y divide las cadenas en subcadenas basándose en las comas
-        converted_row = []
-        for item in row:
-            if isinstance(item, int):
-                converted_row.append([item])
-            elif isinstance(item, str) and ',' in item:
-                converted_row.append(item.split(','))
-            else:
-                converted_row.append([item])
-        data.append(converted_row)
-    auxiliar_id = 1
-    for row in data:
-        data_diccionario[auxiliar_id] = row
-        auxiliar_id += 1
+        tk.Button(self, text="Recopilar datos", command=self.collect_data, font=('Arial', 20)).grid(row=7, columnspan=2, padx=20, pady=20)
 
-leer_dataset()
+    def collect_data(self):
+        data = [entry.get() for entry in self.inputs]
+        print(data)  # Aquí puedes hacer lo que necesites con los datos.
 
-#datos ingresados por el usuario
-cultivo_requerido = ""
-#       O
-tipo_cultivo = "" ## se puede cambiar a un arreglo por si gusta agregar mas de un tipo de cultivo
+class MainApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.geometry("{0}x{1}+0+0".format(self.winfo_screenwidth(), self.winfo_screenheight()))
 
-tipo_suelo = "Limoso" 
-ph_suelo = "6"
-nutrientes_suelo = ["Nitrógeno", "Fósforo"]
-clima = "Templado"
-riesgo_conocido = ["Insectos","sequia"] 
-fecha_siembra = "abril"
+        tk.Label(self, text='proyectoc3', font=('Arial', 25)).grid(row=0, columnspan=3, pady=20)
 
-poblacion = [[11, 1, 9, 5, 10, 4, 7, 2, 15, 3, 13, 9, 16, 17, 8, 12, 14],[16, 12, 3, 5, 10, 4, 7, 2, 15, 3, 13, 9, 16, 17, 8, 12, 14],[2, 1, 3, 5, 10, 4, 7, 2, 15, 3, 13, 9, 16, 17, 8, 12, 14]]
-print (data_diccionario)
-def valorar_elemetos():
-    global poblacion
-    index = 0
-    for individuo in poblacion:
-        obtener_puntuacion(individuo,index)
-        index += 1
-
-def obtener_puntuacion(individuo, index):
-    global data_diccionario
-    cantidad_cultivos = 3 #esta variable se usara en la interface grafica 
-    puntuacion = Decimal(0)
-    for elemento in individuo[:cantidad_cultivos]:    
-        #verifica si el cultivo es igual al que el usuario desea o si es algun tipo de cultivo que desea 
-        if cultivo_requerido == data_diccionario[elemento][0][0].replace(" ", "") or any(tipo in tipo_cultivo for tipo in data_diccionario[elemento][2]) : ### complete
-            puntuacion += Decimal('1')
-        else:
-            puntuacion -= Decimal('0.1')
-
-        #verificar que el tipo de suelo sea el correcto
-        if tipo_suelo in data_diccionario[elemento][1]: ### complete
-            puntuacion += Decimal('1')
-        else:
-            puntuacion -= Decimal('0.2')
+        self.entries = []
+        titulo_labels = ["quecultivo quieres sembrar?","algun tipo de cultivo en especifico","tipo de suelo","nutrientes del suelo","clima del area","riesgos conocidos","mes de la siembra"]
+        titulo_labels_configuracion = ["cantidad poblacion inicial","poblacion Maxima","posibilidad de cruza","probabilidad de mutacion del individuo","probabilidad de mutacion del gen","cantidad de iteraciones"]
         
-        #si los cultivos son compatibles
-        for identificador in individuo[:cantidad_cultivos]: ### complete
-            if identificador == elemento:
-                pass
-            else:
-                if any(compatible.replace(" ","") in data_diccionario[elemento][0][0].replace(" ", "") for compatible in data_diccionario[identificador][6]):
-                    puntuacion += Decimal('0.5')
-                else:
-                    puntuacion -= Decimal('0.15')
+        for i in range(len(titulo_labels)):
+            tk.Label(self, text=titulo_labels[i], font=('Arial', 20)).grid(row=i+1, column=0, sticky='w', padx=(20, 10), pady=10)
+            entry = tk.Entry(self, font=('Arial', 20))
+            entry.grid(row=i+1, column=1, padx=(10, 20), pady=10)
+            self.entries.append(entry)
 
-                #aprovechando el for y que la situcion es similar se hace aqui la comprobacion de los efectos que generan las plantas y si afectan positivamente a las otras
-                for efectos_generado in data_diccionario[elemento][8]:#efectos generados fila 9 del dataset
-                    # print(str(efectos_generado),":", data_diccionario[identificador][9]) solo es para ver so coincide despues lo borro 
-                    # print(str(efectos_generado) in data_diccionario[identificador][9])
-                    if str(efectos_generado) in data_diccionario[identificador][9]:##afecta
-                        puntuacion += Decimal('0.2')
+        tk.Button(self, text="Recopilar datos", command=self.collect_data, font=('Arial', 20)).grid(row=len(titulo_labels_configuracion)+2, columnspan=3, padx=20, pady=20)
 
-        #verificar que el ph este dentro del rango
-        ph_rango = [float(num) for num in data_diccionario[elemento][7][0].replace(" ", "").split("-")]    
-        if ph_rango[0] <= float(ph_suelo) <= ph_rango[1]:###completo
-            puntuacion += Decimal('2')
-        else:
-            puntuacion -= Decimal('0.6')
-                
-        #verificar que los nutrientes sean los necesario
-        for nutriente in data_diccionario[elemento][5]:
-            if nutriente.replace(" ","") in  nutrientes_suelo:
-                puntuacion += Decimal('0.3')
-            else:
-                puntuacion -= Decimal('0.1')
-        
-        #verificar si el clima es compatible con los cultivos
-        if clima in data_diccionario[elemento][3]:
-            puntuacion += Decimal('0.8')
-        else:
-            puntuacion -= Decimal('0.5')
-        
-        #  #verifica si hay relacion entre los riesgos que puede sifrir las plantas 
-        for riesgo in data_diccionario[elemento][4]:
-            riesgo = riesgo.replace(" ","")
-            if riesgo in riesgo_conocido:
-                puntuacion -= Decimal('0.18')
-            else:
-                puntuacion += Decimal('0.2')
-        
-         #verificar que la temporada sea la correcta
-        if fecha_siembra.replace(" ","") in data_diccionario[elemento][10]:
-            puntuacion += Decimal('1.0')
-        else:
-            puntuacion -= Decimal('0.8')
+        # Asegúrate de cambiar 'icono_tuerca.png' a la ruta de tu icono.
+        config_icon = tk.PhotoImage(file='icono.png')
+        config_button = tk.Button(self, image=config_icon, command=self.open_config)
+        config_button.image = config_icon
+        config_button.grid(row=1, column=2, sticky='nsew', padx=(50, 0), pady=10)  # Padding de 50 pixels a la izquierda
 
-    print(Decimal(puntuacion))
-    poblacion_puntuacion[index] = puntuacion
-    
+    def collect_data(self):
+        data = [entry.get() for entry in self.entries]
+        print(data)  # Aquí puedes hacer lo que necesites con los datos.
 
-    
+    def open_config(self):
+        ConfigWindow(self)
 
-
-valorar_elemetos()
-print(poblacion_puntuacion)
+if __name__ == '__main__':
+    app = MainApp()
+    app.mainloop()

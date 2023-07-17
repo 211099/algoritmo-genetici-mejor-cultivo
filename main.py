@@ -7,6 +7,20 @@ data_diccionario = {} #datos con identificador (en in diccionario)
 poblacion = [] #la poblacion 
 arreglo_claves = [] #arreglo que contiene las claves de data diccionario
 poblacion_puntuacion = {}
+mejor_individuo = []
+promedio_individuo = []
+peor_individuo = []
+
+#configuracion del algoritmo
+cantidad_poblacion_inicial = 6 ###valor que despues sera sustituido / se ingresara desde la interface
+poblacion_maxima = 100
+posibilidad_cruza = 1 ###valor que despues sera sustituido / se ingresara desde la interface
+posibilidad_mut_individuo = 35 ###valor que despues sera sustituido / se ingresara desde la interface
+posibilidad_mut_gen = 30
+cantidad_iteraciones = 1000
+
+  ###valor que despues sera sustituido / se ingresara desde la interface
+cantidad_cultivos = 6 ###esta variable se usara en la interface grafica 
 
 #datos ingresados por el usuario
 cultivo_requerido = "Maiz"
@@ -53,8 +67,6 @@ riesgo_conocido = ["Insectos","sequia"]
 fecha_siembra = "abril"
 
 def generar_n_individuos():
-   
-    cantidad_poblacion_inicial = 3  #valor que despues sera sustituido / se ingresara desde la interface
     global arreglo_claves 
     poblacion_inicial = []
     auxiliar_claves = []
@@ -71,15 +83,14 @@ def generar_n_individuos():
     return poblacion_inicial
 
 def seleccion_parejas():   
-    numero_de_parejas = (len(poblacion) / 2) + 0.5 #valor que despues sera sustituido / se ingresara desde la interface
+    numero_de_parejas = (len(poblacion) / 2) + 0.5 
     parejas_aleatorias = [random.sample(poblacion, 2) for _ in range(int(numero_de_parejas))]
 
     return parejas_aleatorias
 
 def cruza(parejas_aleatorias):
-    posibilidad_cruza = 100 #valor que despues sera sustituido / se ingresara desde la interface
-    punto_de_cruce = 2
     hijos = []
+    punto_de_cruce = 2 ###
     for pareja in parejas_aleatorias:
         if random.randrange(0,100) <= posibilidad_cruza:
             tupla1 = pareja[0]
@@ -97,13 +108,10 @@ def cruza(parejas_aleatorias):
     print('\n')
     
     return hijos
-#error pa
+
 def reparar_hijos(hijos_sin_reparar):
     global arreglo_claves
     hijos_reparados = []
-    print('inicia depuracion pa\n')
-    print(hijos_sin_reparar[0], len(hijos_sin_reparar[0]))
-    print(hijos_sin_reparar[1], len(hijos_sin_reparar[1]))
     for hijo in hijos_sin_reparar:
        
         auxiliar_elementos_usados = []
@@ -117,7 +125,6 @@ def reparar_hijos(hijos_sin_reparar):
                         break
             else:       
                 auxiliar_elementos_usados.append(elemento)
-
         hijos_reparados.append(auxiliar_elementos_usados)
 
     print('\n hijos reparados')
@@ -126,8 +133,7 @@ def reparar_hijos(hijos_sin_reparar):
     return hijos_reparados    
 
 def mutacion(hijos_reparados):
-    posibilidad_mut_individuo = 30 #valor que despues sera sustituido / se ingresara desde la interface
-    posibilidad_mut_gen = 10  #valor que despues sera sustituido / se ingresara desde la interface
+    
     for hijo in hijos_reparados:
         arreglo_posiciones_que_mutan=[]
 
@@ -164,14 +170,15 @@ def Intercambio_de_valor(arreglo_posiciones_que_mutan,hijo):
 
 def valorar_elemetos():
     global poblacion
+    print(poblacion)
     index = 0
     for individuo in poblacion:
         obtener_puntuacion(individuo,index)
         index += 1
+    print
 
 def obtener_puntuacion(individuo, index):
     global data_diccionario
-    cantidad_cultivos = 3 #esta variable se usara en la interface grafica 
     puntuacion = Decimal(0)
     for elemento in individuo[:cantidad_cultivos]:    
         #verifica si el cultivo es igual al que el usuario desea o si es algun tipo de cultivo que desea 
@@ -198,8 +205,6 @@ def obtener_puntuacion(individuo, index):
 
                 #aprovechando el for y que la situcion es similar se hace aqui la comprobacion de los efectos que generan las plantas y si afectan positivamente a las otras
                 for efectos_generado in data_diccionario[elemento][8]:#efectos generados fila 9 del dataset
-                    # print(str(efectos_generado),":", data_diccionario[identificador][9]) solo es para ver so coincide despues lo borro 
-                    # print(str(efectos_generado) in data_diccionario[identificador][9])
                     if str(efectos_generado) in data_diccionario[identificador][9]:##afecta
                         puntuacion += Decimal('0.2')
 
@@ -240,19 +245,50 @@ def obtener_puntuacion(individuo, index):
     print(Decimal(puntuacion))
     poblacion_puntuacion[index] = puntuacion
 
+def ordenar_poblacion():
+    global poblacion
+    print(len(poblacion_puntuacion))
+    print(len(poblacion))
+    diccionario_ordenado = {k: v for k, v in sorted(poblacion_puntuacion.items(), key=lambda item: item[1], reverse=True)}
+    print(diccionario_ordenado)
+    print(poblacion,'\n')
+    print(len(diccionario_ordenado))
+    print(len(poblacion))
+    
+    poblacion = [poblacion[key] for key in diccionario_ordenado.keys()]
+    #eliminar por poblacion exedente, elimina los peores solo toma los mejores
+    primer_elemento = next(iter(diccionario_ordenado.items()))
+    ultimo_elemento = diccionario_ordenado.popitem()
+    suma_valores = sum(diccionario_ordenado.values())
+    promedio = suma_valores / len(diccionario_ordenado)
+    
+    mejor_individuo.append(primer_elemento[1])
+    peor_individuo.append(ultimo_elemento[1])
+    promedio_individuo.append(promedio)
+    
+
+    print(promedio_individuo)
+    poblacion = poblacion[:poblacion_maxima]###
+   
+
+
 def main():
     global poblacion
     leer_dataset()
     poblacion = generar_n_individuos()
 
     #inicia el el bucle
-    parejas_aleatorias = seleccion_parejas()
-    print('parejas_aleatorias: ', parejas_aleatorias)
-    hijos_sin_reparar = cruza(parejas_aleatorias)
-    hijos_reparados = reparar_hijos(hijos_sin_reparar)
-    mutacion(hijos_reparados)
-    valorar_elemetos()
-
-    #termina el bucle
+    for i in range(0,cantidad_iteraciones):
+        parejas_aleatorias = seleccion_parejas()
+        print('parejas_aleatorias: ', parejas_aleatorias)
+        hijos_sin_reparar = cruza(parejas_aleatorias)
+        hijos_reparados = reparar_hijos(hijos_sin_reparar)
+        mutacion(hijos_reparados)
+        valorar_elemetos()
+        ordenar_poblacion()
+        print(poblacion)
+        poblacion_puntuacion.clear()
+        #termina el bucle
 
 main()
+
