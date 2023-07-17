@@ -1,6 +1,10 @@
 import pandas as pd
 import random 
 from decimal import Decimal
+import matplotlib.pyplot as plt
+import numpy as np
+import mplcursors
+
 
 data = [] #datos
 data_diccionario = {} #datos con identificador (en in diccionario)
@@ -12,30 +16,25 @@ promedio_individuo = []
 peor_individuo = []
 
 #configuracion del algoritmo
-cantidad_poblacion_inicial = 6 ###valor que despues sera sustituido / se ingresara desde la interface
+cantidad_poblacion_inicial = 12 ###valor que despues sera sustituido / se ingresara desde la interface
 poblacion_maxima = 100
 posibilidad_cruza = 1 ###valor que despues sera sustituido / se ingresara desde la interface
 posibilidad_mut_individuo = 35 ###valor que despues sera sustituido / se ingresara desde la interface
 posibilidad_mut_gen = 30
-cantidad_iteraciones = 1000
+cantidad_iteraciones = 100
 
   ###valor que despues sera sustituido / se ingresara desde la interface
 cantidad_cultivos = 6 ###esta variable se usara en la interface grafica 
 
 #datos ingresados por el usuario
-cultivo_requerido = "Maiz"
-tipo_suelo = "" 
-ph_suelo = ""
-nutrientes_suelo = ""
-clima = ""
-riesgo_conocido = "" 
+
 
 def leer_dataset():
     # Cargar el archivo CSV
     df = pd.read_csv('dataset.csv')
 
     # Recortar el DataFrame para que comience desde la segunda fila (índice 1)
-    df = df.iloc[1:]
+    df = df.iloc[0:]
 
     # Crear una lista que almacena cada fila como una lista de listas
     data = []
@@ -54,17 +53,19 @@ def leer_dataset():
     for row in data:
         data_diccionario[auxiliar_id] = row
         auxiliar_id += 1
+    print(data_diccionario)
 
 #datos ingresados por el usuario
-cultivo_requerido = ""
+cultivo_requerido = [""]
 #       O
-tipo_cultivo = "" ## se puede cambiar a un arreglo por si gusta agregar mas de un tipo de cultivo
+tipo_cultivo = ["Tubérculos","Hortalizas"] ## se puede cambiar a un arreglo por si gusta agregar mas de un tipo de cultivo
 tipo_suelo = "Limoso" 
 ph_suelo = "6"
 nutrientes_suelo = ["Nitrógeno", "Fósforo"]
 clima = "Templado"
 riesgo_conocido = ["Insectos","sequia"] 
 fecha_siembra = "abril"
+lo_mejor = []
 
 def generar_n_individuos():
     global arreglo_claves 
@@ -180,12 +181,15 @@ def valorar_elemetos():
 def obtener_puntuacion(individuo, index):
     global data_diccionario
     puntuacion = Decimal(0)
+    print(data_diccionario[1][0][0].replace(" ", ""))
     for elemento in individuo[:cantidad_cultivos]:    
         #verifica si el cultivo es igual al que el usuario desea o si es algun tipo de cultivo que desea 
-        if cultivo_requerido == data_diccionario[elemento][0][0].replace(" ", "") or any(tipo in tipo_cultivo for tipo in data_diccionario[elemento][2]) : ### complete
-            puntuacion += Decimal('1')
-        else:
-            puntuacion -= Decimal('0.1')
+        for cultivo in cultivo_requerido:
+            if cultivo == data_diccionario[elemento][0][0].replace(" ", "") or any(tipo.replace(" ","") in tipo_cultivo for tipo in data_diccionario[elemento][2]) : ### complete
+                puntuacion += Decimal('1')
+                print('si')
+            else:
+                puntuacion -= Decimal('0.1')
 
         #verificar que el tipo de suelo sea el correcto
         if tipo_suelo in data_diccionario[elemento][1]: ### complete
@@ -228,7 +232,7 @@ def obtener_puntuacion(individuo, index):
         else:
             puntuacion -= Decimal('0.5')
         
-        #  #verifica si hay relacion entre los riesgos que puede sifrir las plantas 
+        #verifica si hay relacion entre los riesgos que puede sifrir las plantas 
         for riesgo in data_diccionario[elemento][4]:
             riesgo = riesgo.replace(" ","")
             if riesgo in riesgo_conocido:
@@ -247,21 +251,19 @@ def obtener_puntuacion(individuo, index):
 
 def ordenar_poblacion():
     global poblacion
+    global lo_mejor
     print(len(poblacion_puntuacion))
     print(len(poblacion))
+    ##genera un diccionario de mayor a menor las key tienen la posicion del arreglo poblacion
     diccionario_ordenado = {k: v for k, v in sorted(poblacion_puntuacion.items(), key=lambda item: item[1], reverse=True)}
-    print(diccionario_ordenado)
-    print(poblacion,'\n')
-    print(len(diccionario_ordenado))
-    print(len(poblacion))
-    
+    #ordena  la poblacion de forma elitista gracias a las keys del diccionario_ordenado
     poblacion = [poblacion[key] for key in diccionario_ordenado.keys()]
     #eliminar por poblacion exedente, elimina los peores solo toma los mejores
     primer_elemento = next(iter(diccionario_ordenado.items()))
     ultimo_elemento = diccionario_ordenado.popitem()
     suma_valores = sum(diccionario_ordenado.values())
     promedio = suma_valores / len(diccionario_ordenado)
-    
+    lo_mejor = poblacion[0]
     mejor_individuo.append(primer_elemento[1])
     peor_individuo.append(ultimo_elemento[1])
     promedio_individuo.append(promedio)
@@ -292,3 +294,20 @@ def main():
 
 main()
 
+
+iteraciones = range(1, len(mejor_individuo) + 1)
+plt.figure(figsize=(10, 6))
+
+plt.plot(iteraciones, mejor_individuo, color='g', marker='o', linestyle='-', label='Mejor individuo')
+plt.plot(iteraciones, promedio_individuo, color='b', marker='o', linestyle='-', label='Promedio individuo')
+plt.plot(iteraciones, peor_individuo, color='r', marker='o', linestyle='-', label='Peor individuo')
+print(lo_mejor)
+titulo = 'Comparación de individuos a lo largo de las iteraciones\n La mejor combinacion es: ' + ', '.join(data_diccionario[elemento][0][0] for elemento in lo_mejor[:cantidad_cultivos])
+plt.title(titulo)
+plt.xlabel('Iteraciones')
+plt.ylabel('Valor del individuo')
+plt.legend()
+
+mplcursors.cursor(hover=True)
+
+plt.show()

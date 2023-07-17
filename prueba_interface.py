@@ -10,7 +10,7 @@ class ConfigWindow(tk.Toplevel):
 
         self.inputs = []
         titulo_labels = ["cantidad poblacion inicial","poblacion Maxima","posibilidad de cruza","probabilidad de mutacion del individuo","probabilidad de mutacion del gen","cantidad de iteraciones"]
-        default_values = ["6", "100", "1", "35", "30", "1"]
+        default_values = ["37", "93", "68", "37", "22", "112"]
 
         for i in range(6):
             tk.Label(self, text=titulo_labels[i], font=('Arial', 20), anchor='w').grid(row=i, column=0, sticky='w', padx=(20, 10), pady=10)
@@ -38,7 +38,7 @@ class MainApp(tk.Tk):
         tk.Label(self, text='proyectoc3', font=('Arial', 25)).grid(row=0, columnspan=3, pady=20)
 
         self.inputs = []
-        titulo_labels = ["quecultivo quieres sembrar?","algun tipo de cultivo en especifico","tipo de suelo","nutrientes del suelo","clima del area","riesgos conocidos","mes de la siembra"]
+        titulo_labels = ["quecultivo quieres sembrar?","algun tipo de cultivo en especifico","tipo de suelo","nutrientes del suelo","clima del area","riesgos conocidos","mes de la siembra","cantidad de cultivos","PH del suelo"]
 
         for i in range(len(titulo_labels)):
             tk.Label(self, text=titulo_labels[i], font=('Arial', 20), anchor='w').grid(row=i+1, column=0, sticky='w', padx=(20, 10), pady=10)
@@ -64,15 +64,18 @@ class MainApp(tk.Tk):
         print("Datos de ConfigWindow:", config_data)
         
         print("Antes de llamar a AlgoritmoGenetico.main()")
-        cantidad_poblacion_inicial = int(config_data[0])
-        poblacion_maxima = int(config_data[1])
-        posibilidad_cruza = int(config_data[2])
-        posibilidad_mut_individuo = int(config_data[3])
-        posibilidad_mut_gen = int(config_data[4])
-        cantidad_iteraciones = int(config_data[5])
-
-
-        self.algoritmo = AlgoritmoGenetico(cantidad_poblacion_inicial, poblacion_maxima, posibilidad_cruza, posibilidad_mut_individuo, posibilidad_mut_gen,cantidad_iteraciones)
+    
+        
+        cultivo_requerido_sin_espacios = main_data[0].replace(' ', '')  # Eliminar los espacios
+        cultivo_requerido = cultivo_requerido_sin_espacios.split(',') 
+        tipo_cultivo_sin_espacios = main_data[1].replace(' ','')
+        tipo_cultivo =  tipo_cultivo_sin_espacios.split(',')
+        tipo_suelo = main_data[2].replace(" ","")
+        nutrientes_suelo_sin_espacios = main_data[3].replace(' ','')
+        nutrientes_suelo = nutrientes_suelo_sin_espacios.split(',')
+        riesgo_conocido_sin_espacios = main_data[5].replace(' ','')
+        riesgo_conocido = riesgo_conocido_sin_espacios.split(',')
+        self.algoritmo = AlgoritmoGenetico(arreglo_data_algoritmo=config_data,cultivo_requerido=cultivo_requerido,tipo_cultivo=tipo_cultivo,tipo_suelo=tipo_suelo,nutrientes_suelo=nutrientes_suelo,arreglo_data_main=main_data,riesgo_conocido=riesgo_conocido)
         self.algoritmo.main()
         print("Después de llamar a AlgoritmoGenetico.main()")
 

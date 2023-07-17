@@ -1,10 +1,13 @@
 import pandas as pd
-import random
+import random 
 from decimal import Decimal
+import matplotlib.pyplot as plt
+import numpy as np
+import mplcursors
 
 
 class AlgoritmoGenetico():
-    def __init__(self, cantidad_poblacion_inicial, poblacion_maxima, posibilidad_cruza, posibilidad_mut_individuo, posibilidad_mut_gen,cantidad_iteraciones):
+    def __init__(self, arreglo_data_algoritmo,cultivo_requerido, tipo_cultivo,tipo_suelo,nutrientes_suelo,arreglo_data_main,riesgo_conocido):
         self.data = []
         self.data_diccionario = {}
         self.poblacion = []
@@ -13,33 +16,32 @@ class AlgoritmoGenetico():
         self.mejor_individuo = []
         self.promedio_individuo = []
         self.peor_individuo = []
-        self.cantidad_poblacion_inicial = cantidad_poblacion_inicial
-        self.poblacion_maxima = poblacion_maxima
-        self.posibilidad_cruza = posibilidad_cruza
-        self.posibilidad_mut_individuo = posibilidad_mut_individuo
-        self.posibilidad_mut_gen = posibilidad_mut_gen
-        self.cantidad_iteraciones = cantidad_iteraciones
-        self.cantidad_cultivos = 0
-        self.cultivo_requerido = ""
-        self.tipo_cultivo = ""
-        self.tipo_suelo = ""
-        self.ph_suelo = "0"
-        self.nutrientes_suelo = []
-        self.clima = ""
-        self.riesgo_conocido = ""
-        self.fecha_siembra = ""
-        print(self.cantidad_poblacion_inicial)
-        print(self.poblacion_maxima)
-        print(self.posibilidad_cruza)
-        print(self.posibilidad_mut_individuo)
-        print(self.posibilidad_mut_gen)
-        print(self.cantidad_iteraciones)
+        ###valores algoritmo
+        self.cantidad_poblacion_inicial = int(arreglo_data_algoritmo[0])
+        self.poblacion_maxima =  int(arreglo_data_algoritmo[1])
+        self.posibilidad_cruza = int(arreglo_data_algoritmo[2])
+        self.posibilidad_mut_individuo = int(arreglo_data_algoritmo[3])
+        self.posibilidad_mut_gen = int(arreglo_data_algoritmo[4])
+        self.cantidad_iteraciones =  int(arreglo_data_algoritmo[5])
+        ###valores de usuario
+        self.cantidad_cultivos = int(arreglo_data_main[7])###peso de la mochila
+        self.cultivo_requerido = cultivo_requerido
+        self.tipo_cultivo =  tipo_cultivo
+        self.tipo_suelo = tipo_suelo
+        self.ph_suelo = arreglo_data_main[8]
+        self.nutrientes_suelo = nutrientes_suelo
+        self.clima = arreglo_data_main[4]
+        self.riesgo_conocido = riesgo_conocido
+        self.fecha_siembra = arreglo_data_main[6]
+        self.lo_mejor = []
+
+  
 
 
 
     def leer_dataset(self):
         df = pd.read_csv('dataset.csv')
-        df = df.iloc[1:]
+        df = df.iloc[0:]
         self.data = []
         for index, row in df.iterrows():
             converted_row = []
@@ -79,7 +81,7 @@ class AlgoritmoGenetico():
 
     def cruza(self, parejas_aleatorias):
         hijos = []
-        punto_de_cruce = 2
+        punto_de_cruce = 2 ##punto de cruce 
         for pareja in parejas_aleatorias:
             if random.randrange(0, 100) <= self.posibilidad_cruza:
                 tupla1 = pareja[0]
@@ -88,15 +90,9 @@ class AlgoritmoGenetico():
                 hijo2 = tupla2[:punto_de_cruce] + tupla1[punto_de_cruce:]
                 hijos.append(hijo1)
                 hijos.append(hijo2)
-
-        print('hijos')
-        for hijo in hijos:
-            print(hijo)
-        print('\n')
-
         return hijos
 
-    def reparar_hijos(self, hijos_sin_reparar):
+    def reparar_hijos(self, hijos_sin_reparar):##elimina los elementos repetido que hay dentro del individuo
         hijos_reparados = []
         for hijo in hijos_sin_reparar:
             auxiliar_elementos_usados = []
@@ -110,9 +106,7 @@ class AlgoritmoGenetico():
                     auxiliar_elementos_usados.append(elemento)
             hijos_reparados.append(auxiliar_elementos_usados)
 
-        print('\n hijos reparados')
-        for hijo in hijos_reparados:
-            print(hijo)
+       
         return hijos_reparados
 
     def mutacion(self, hijos_reparados):
@@ -147,12 +141,16 @@ class AlgoritmoGenetico():
 
     def obtener_puntuacion(self, individuo, index):
         puntuacion = Decimal(0)
+      
         for elemento in individuo[:self.cantidad_cultivos]:
-            if self.cultivo_requerido == self.data_diccionario[elemento][0][0].replace(" ", "") or any(
-                    tipo in self.tipo_cultivo for tipo in self.data_diccionario[elemento][2]):
-                puntuacion += Decimal('1')
-            else:
-                puntuacion -= Decimal('0.1')
+           
+            for cultivo in self.cultivo_requerido:
+                
+                if cultivo == self.data_diccionario[elemento][0][0].replace(" ", "") or any(
+                        tipo.replace(" ","") in self.tipo_cultivo for tipo in self.data_diccionario[elemento][2]):
+                    puntuacion += Decimal('1')
+                else:
+                    puntuacion -= Decimal('0.1')
 
             if self.tipo_suelo in self.data_diccionario[elemento][1]:
                 puntuacion += Decimal('1')
@@ -218,12 +216,12 @@ class AlgoritmoGenetico():
         ultimo_elemento = diccionario_ordenado.popitem()
         suma_valores = sum(diccionario_ordenado.values())
         promedio = suma_valores / len(diccionario_ordenado)
-
+        self.lo_mejor = self.poblacion[0]
         self.mejor_individuo.append(primer_elemento[1])
         self.peor_individuo.append(ultimo_elemento[1])
         self.promedio_individuo.append(promedio)
 
-        print(self.promedio_individuo)
+
         self.poblacion = self.poblacion[:self.poblacion_maxima]
 
     def main(self):
@@ -241,3 +239,18 @@ class AlgoritmoGenetico():
             self.ordenar_poblacion()
             print(self.poblacion)
             self.poblacion_puntuacion.clear()
+        iteraciones = range(1, len(self.mejor_individuo) + 1)
+        plt.figure(figsize=(10, 6))
+
+        plt.plot(iteraciones, self.mejor_individuo, color='g', marker='o', linestyle='-', label='Mejor individuo')
+        plt.plot(iteraciones, self.promedio_individuo, color='b', marker='o', linestyle='-', label='Promedio individuo')
+        plt.plot(iteraciones, self.peor_individuo, color='r', marker='o', linestyle='-', label='Peor individuo')
+        titulo ='Comparación de individuos a lo largo de las iteraciones\n La mejor combinacion es: ' + ', '.join(self.data_diccionario[elemento][0][0] for elemento in self.lo_mejor[:self.cantidad_cultivos])
+        plt.title(titulo)
+        plt.xlabel('Iteraciones')
+        plt.ylabel('Valor del individuo')
+        plt.legend()
+
+        mplcursors.cursor(hover=True)
+
+        plt.show()
